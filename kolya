@@ -1,0 +1,71 @@
+_name="kolya"
+_version="0.0.1"
+_hour="$(date | awk '{print $4}')"
+_dayNo="$(date | awk '{print $3}')"
+_dayName="$(date | awk '{print $1}')"
+_month="$(date | awk '{print $2}')"
+_user="$(whoami)"
+_project="~/Public/Repos/dane"
+_backup="~/Public/Repos/backup"
+
+if [ "$(echo $1 | grep -c 'backup')" == 1 ]; then
+   cd ~/Public/Repos/backup
+   bash -c 'rm -rf ./*' >/dev/null 2>&1
+   bash -c 'rm -rf ./.*' >/dev/null 2>&1
+   cd ~
+   cp -r ~/Public/Repos/dane ~/Public/Repos/backup
+elif [[ "$(echo $1 | grep -c 'clean')" == 1 ]]; then
+   cd ~/Public/Repos/backup
+   bash -c 'rm -rf ./*' >/dev/null 2>&1
+   bash -c 'rm -rf ./.*' >/dev/null 2>&1
+   cd ~
+   printf "Cleaned\n"
+elif [[ "$(echo $1 | grep -c 'set-backup')" == 1 ]]; then
+   cd ~ ; mkdir prajeala ; cd prajeala
+   sudo cp /usr/local/bin/kolya ./kolya ; mv kolya kolya2
+   cat kolya | sed "s/~\/Public\/Repos\/backup/$2/g" > kolya
+   rm -rf kolya2 ; sh kolya install ; cd .. ; rm -rf prajeala
+elif [[ "$(echo $1 | grep -c 'set-project')" == 1 ]]; then
+   cd ~ ; mkdir prajeala ; cd prajeala
+   sudo cp /usr/local/bin/kolya ./kolya ; mv kolya kolya2
+   cat kolya | sed "s/~\/Public\/Repos\/dane/$2/g" > kolya
+   rm -rf kolya2 ; sh kolya install ; cd .. ; rm -rf prajeala
+elif [[ "$(echo $1 | grep -c 'install')" == 1 ]]; then
+   sudo chmod +x kolya
+   sudo cp kolya /usr/local/bin
+   printf "installed!\n"
+elif [[ "$(echo $1 | grep -c 'update')" == 1 ]]; then
+   cd ~ ; mkdir claun ; cd claun ; git clone https://github.com/mldMoldovan/kolya.git
+   cd kolya
+   sudo chmod +x kolya
+   sudo cp kolya /usr/local/bin
+   cd .. ; cd .. ; rm -rf claun
+   printf "updated!\n"
+ elif [[ "$(echo $1 | grep -c 'upload')" == 1 ]]; then
+   cd ~/Public/Repos/dane
+   git add .
+   git commit -m "$_user $_hour $_dayName $_month $_dayNo"
+   kolya clean ; kolya backup ; git push
+ elif [[ "$(echo $1 | grep -c 'download')" == 1 ]]; then
+   cd ~/Public/Repos/dane
+   git add .
+   git commit -m "$_user $_hour $_dayName $_month $_dayNo"
+   kolya clean ; kolya backup ; git pull
+ elif [[ "$(echo $1 | grep -c 'resume')" == 1 ]]; then
+   echo  "$_user $_hour $_dayName $_month $_dayNo"
+ elif [[ $1 == "-v" ]]; then
+   printf "   $_name - $_version\n"
+ elif [[ $1 == "-h" ]]; then
+   printf "kolya - Not a western spy i swear\n"
+   printf "\n"
+   printf "Usage: \n"
+   printf ""
+   printf "  - backup\n"
+   printf "  - clean\n"
+   printf "  - set-backup/set-project\n"
+   printf "  - get-backup/get-backup\n"
+   printf "  - update/install\n"
+   printf ""
+else
+   printf "Blin!\n"
+fi
